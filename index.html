@@ -558,6 +558,7 @@ function makeTextures(){
   TEX.fence=canvasTex(64,64,(g)=>{g.clearRect(0,0,64,64);g.strokeStyle='rgba(185,190,196,1)';g.lineWidth=3;g.beginPath();g.moveTo(0,0);g.lineTo(64,64);g.moveTo(64,0);g.lineTo(0,64);g.stroke()});
   TEX.fence.repeat.set(10,1);
   TEX.grass=canvasTex(128,128,(g)=>{g.clearRect(0,0,128,128);const r=mulberry(9);for(let i=0;i<70;i++){const x=10+r()*108,h=50+r()*75,lean=(r()-0.5)*26;g.strokeStyle=`rgba(${200+r()*55|0},${220+r()*35|0},${170+r()*60|0},1)`;g.lineWidth=2+r()*3;g.beginPath();g.moveTo(x,128);g.quadraticCurveTo(x+lean*0.3,128-h*0.5,x+lean,128-h);g.stroke()}});
+  TEX.honey=canvasTex(64,64,(g)=>{g.fillStyle='#0b0b0d';g.fillRect(0,0,64,64);g.strokeStyle='#2c2d32';g.lineWidth=2;for(let y=0;y<5;y++)for(let x=0;x<5;x++){const cx=x*16+(y%2)*8,cy=y*14;g.beginPath();for(let k=0;k<6;k++){const a=k/6*Math.PI*2+Math.PI/6;g.lineTo(cx+7*Math.cos(a),cy+7*Math.sin(a))}g.closePath();g.stroke()}});TEX.honey.repeat.set(5,2);
   TEX.carbon=canvasTex(64,64,(g)=>{for(let i=0;i<8;i++)for(let j=0;j<8;j++){g.fillStyle=(i+j)%2?'#2b2c31':'#1a1b1f';g.fillRect(i*8,j*8,8,8);g.fillStyle='rgba(255,255,255,0.06)';g.fillRect(i*8,j*8,8,2)}});TEX.carbon.repeat.set(6,6);
   for(const k in TEX)SHARED_TEX.add(TEX[k]);
 }
@@ -673,6 +674,7 @@ function carMats(def,st,up){
     tail:new P.MeshStandardMaterial({color:col('#5a0000'),emissive:col('#ff1010'),emissiveIntensity:0.8,roughness:0.15}),
     amber:new P.MeshStandardMaterial({color:col('#7a4a00'),emissive:col('#ffa000'),emissiveIntensity:0.5,roughness:0.2}),
     seam:new P.MeshStandardMaterial({color:col('#050505'),roughness:0.8}),
+    grille:new P.MeshStandardMaterial({color:col('#ffffff'),map:TEX.honey,roughness:0.35,metalness:0.4}),
     bay:new P.MeshStandardMaterial({color:col('#1d1e21'),roughness:0.75,metalness:0.2}),
     metal:new P.MeshStandardMaterial({color:col('#9aa0a7'),metalness:0.9,roughness:0.35}),
     alu:new P.MeshStandardMaterial({color:col('#c9cdd2'),metalness:1,roughness:0.22}),
@@ -723,7 +725,7 @@ function buildCar(def,st,up){
   bake(hp,hoodGroup,true);body.add(hoodGroup);
   // ---- greenhouse + roof
   add(loftGeo(xsR(c.bx,c.cx,48),secG,36,GN,GT,0,Math.PI*2,true,3),M.glass);
-  const PE=0.68;
+  const PE=0.95;
   add(loftGeo(xsR(c.rx+0.02,c.fx-0.02,30),secG,16,GN,GT,PE,Math.PI-PE,false,0,0.012),M.roof);
   for(const s of[1,-1]){
     const ph=s>0?PE:Math.PI-PE;
@@ -759,10 +761,11 @@ function buildCar(def,st,up){
   {const q=sec(0),ys=q.b+0.05,zs=yToZ(q,ys,BN,BT);for(const s of[-1,1])add(rbox(d.wb-2*ra-0.06,0.07+(st.kit?0.03:0),0.06+(st.kit?0.03:0),0.02),st.kit?M.gloss:M.black,0,ys-(st.kit?0.02:0),s*(zs-0.01+(st.kit?0.02:0)))}
   // front fascia
   const F=sec(hl),FC=(F.t+F.b)/2;
-  if(def.grille==='big'){pod(M.gloss,hl-0.015,FC-0.01,0,0.03,0.15,0.34);pod(M.gloss,hl-0.05,F.b+0.04,0,0.04,0.05,0.55)}
-  else if(def.grille==='slot'){pod(M.gloss,hl-0.012,F.t-0.05,0,0.025,0.035,0.36);pod(M.gloss,hl-0.035,F.b+0.06,0,0.035,0.06,0.5)}
-  else{pod(M.gloss,hl-0.025,F.b+0.07,0,0.035,0.08,0.48)}
-  add(new P.PlaneGeometry(0.34,0.17),M.plate,hl+0.012,def.grille==='big'?FC-0.03:FC,0,0,Math.PI/2,0);
+  const fh=(F.t-F.b);
+  if(def.grille==='big'){add(rbox(0.05,fh*0.62,F.w*1.05,0.05),M.grille,hl-0.005,FC+fh*0.04,0)}
+  else if(def.grille==='slot'){add(rbox(0.05,fh*0.18,F.w*1.1,0.02),M.grille,hl-0.005,F.t-fh*0.18,0);add(rbox(0.05,fh*0.28,F.w*1.2,0.04),M.grille,hl-0.01,F.b+fh*0.22,0)}
+  else{add(rbox(0.05,fh*0.34,F.w*1.25,0.06),M.grille,hl-0.008,F.b+fh*0.28,0)}
+  add(new P.PlaneGeometry(0.34,0.17),M.plate,hl+0.03,def.grille==='big'?FC-fh*0.05:FC+fh*0.12,0,0,Math.PI/2,0);
   if(up.ic>0)add(rbox(0.04,0.16,F.w*1.4,0.01),M.alu,hl-0.06,F.b+0.07,0);
   // body kits
   if(st.kit>=1){add(rbox(0.16,0.035,F.w*1.9,0.015),M.gloss,hl-0.02,F.b-0.015,0);const R0=sec(-hl);add(rbox(0.18,0.05,R0.w*1.8,0.02),M.gloss,-hl+0.06,R0.b-0.01,0)}
@@ -772,9 +775,9 @@ function buildCar(def,st,up){
   const hx=hl-(def.hlx||0.16),hq=sec(hx);
   for(const s of[-1,1]){
     if(def.hl==='slim'){const z=hq.w*0.66,y=zToY(hq,z,BN,BT),y2=zToY(sec(hx-0.05),z,BN,BT),ang=Math.atan2(y-y2,0.05);
-      pod(M.head,hx,y-0.016,s*z,0.15,0.034,0.2,ang,s*0.38);pod(M.chrome,hx+0.02,y-0.005,s*z*0.92,0.05,0.035,0.05,ang);pod(M.amber,hx-0.12,y,s*(z+0.06),0.05,0.015,0.05,ang)}
+      pod(M.gloss,hx-0.005,y-0.02,s*z,0.17,0.034,0.225,ang,s*0.38);pod(M.head,hx+0.004,y-0.012,s*z,0.13,0.03,0.18,ang,s*0.38);pod(M.chrome,hx+0.02,y-0.005,s*z*0.92,0.05,0.035,0.05,ang);pod(M.amber,hx-0.12,y,s*(z+0.06),0.05,0.015,0.05,ang)}
     else if(def.hl==='quad'){const x=hl-0.05,q=sec(x),y=clamp(def.hlY||0.62,q.b+0.08,q.t-0.04),z=yToZ(q,y,BN,BT);
-      pod(M.head,x,y,s*z*0.86,0.05,0.065,0.08,0,s*0.5);pod(M.head,x+0.02,y,s*z*0.55,0.05,0.065,0.08,0,s*0.25);pod(M.amber,x+0.01,q.b+0.08,s*z*0.8,0.03,0.025,0.06)}
+      pod(M.gloss,x-0.01,y,s*z*0.72,0.05,0.085,0.2,0,s*0.35);pod(M.head,x,y,s*z*0.86,0.05,0.065,0.08,0,s*0.5);pod(M.head,x+0.02,y,s*z*0.55,0.05,0.065,0.08,0,s*0.25);pod(M.amber,x+0.01,q.b+0.08,s*z*0.8,0.03,0.025,0.06)}
     else{const x=hl-0.4,q=sec(x),z=q.w*0.6,y=zToY(q,z,BN,BT);
       const lid=new P.Mesh(sph.clone(),M.roof);lid.scale.set(0.17,0.012,0.19);lid.position.set(x,y+0.004,s*z);popLow.add(lid);
       const hb=new P.Mesh(rbox(0.16,0.16,0.4,0.03),M.roof);hb.position.set(x+0.04,y+0.08,s*z);popHigh.add(hb);
