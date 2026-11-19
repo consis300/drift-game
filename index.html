@@ -968,7 +968,11 @@ function testPMREM(){try{const es=new T3.Scene();es.background=new T3.Color(0.9,
 function buildEnv(T){
   if(!envOK)return null;
   try{
-    const es=new T3.Scene(),sm=makeSkyMat();setSky(sm,T);sm.uniforms.cloud.value=0;es.add(new T3.Mesh(new T3.SphereGeometry(80,32,16),sm));
+    const es=new T3.Scene(),sg=new T3.SphereGeometry(80,48,24),sp=sg.attributes.position,cols=new Float32Array(sp.count*3);
+    const top=new T3.Color(T.sky[0]),hor=new T3.Color(T.sky[1]),bot=new T3.Color(T.sky[2]),sc=new T3.Color(T.sunC),sd=new T3.Vector3(T.sun[0],T.sun[1],T.sun[2]).normalize(),cc=new T3.Color(),v=new T3.Vector3();
+    for(let i=0;i<sp.count;i++){v.fromBufferAttribute(sp,i).normalize();const y=v.y;cc.copy(hor).lerp(y>0?top:bot,Math.pow(Math.abs(y),y>0?0.55:0.35));const s=Math.max(0,v.dot(sd)),k=Math.pow(s,10)*0.5;cols[i*3]=cc.r+sc.r*k;cols[i*3+1]=cc.g+sc.g*k;cols[i*3+2]=cc.b+sc.b*k}
+    sg.setAttribute('color',new T3.BufferAttribute(cols,3));es.add(new T3.Mesh(sg,new T3.MeshBasicMaterial({vertexColors:true,side:T3.BackSide})));
+    if(!T.night){const sunM=new T3.Mesh(new T3.SphereGeometry(5,12,8),new T3.MeshBasicMaterial({color:new T3.Color(sc.r*4,sc.g*4,sc.b*4)}));sunM.position.copy(sd).multiplyScalar(70);es.add(sunM)}
     const k=T.night?0.6:2.2,pm=new T3.MeshBasicMaterial({color:new T3.Color(k,k,k),side:T3.DoubleSide});
     const p1=new T3.Mesh(new T3.PlaneGeometry(60,18),pm);p1.position.set(0,60,0);p1.rotation.x=Math.PI/2;es.add(p1);
     const gm=new T3.Mesh(new T3.PlaneGeometry(200,200),new T3.MeshBasicMaterial({color:col(T.gcol[0]).multiplyScalar(0.6),side:T3.DoubleSide}));gm.rotation.x=-Math.PI/2;gm.position.y=-2;es.add(gm);
