@@ -634,7 +634,7 @@ function carShape(def,st){
     let w=W2*(1-(1-pf)*smooth(hl-1.1,hl,x)-(1-pr)*smooth(hl-1.0,hl,-x));
     for(const xc of[-d.wb/2,d.wb/2])w+=flare*Math.exp(-Math.pow((x-xc)/(ra*1.15),2));
     let e=1;if(x>hl-Rf){const u=(x-(hl-Rf))/Rf;e=Math.sqrt(Math.max(0,1-u*u))}else if(x<-hl+Rr){const u=(-hl+Rr-x)/Rr;e=Math.sqrt(Math.max(0,1-u*u))}
-    const c=(t+b)/2,kh=0.66+0.34*e;t=c+(t-c)*kh;b=c-(c-b)*kh;w*=0.66+0.34*Math.pow(e,0.6);
+    const c=(t+b)/2,kh=0.8+0.2*e;t=c+(t-c)*kh;b=c-(c-b)*kh;w*=0.74+0.26*Math.pow(e,0.6);
     if(b>t-0.07)b=t-0.07;return{t,b,w};
   };
   const c=def.cab;
@@ -762,7 +762,7 @@ function buildCar(def,st,up){
   // front fascia
   const F=sec(hl),FC=(F.t+F.b)/2;
   const fh=(F.t-F.b);
-  if(def.grille==='big'){add(rbox(0.05,fh*0.62,F.w*1.05,0.05),M.grille,hl-0.005,FC+fh*0.04,0)}
+  if(def.grille==='big'){add(rbox(0.05,fh*0.78,F.w*1.15,0.06),M.grille,hl-0.002,FC-fh*0.02,0)}
   else if(def.grille==='slot'){add(rbox(0.05,fh*0.18,F.w*1.1,0.02),M.grille,hl-0.005,F.t-fh*0.18,0);add(rbox(0.05,fh*0.28,F.w*1.2,0.04),M.grille,hl-0.01,F.b+fh*0.22,0)}
   else{add(rbox(0.05,fh*0.34,F.w*1.25,0.06),M.grille,hl-0.008,F.b+fh*0.28,0)}
   add(new P.PlaneGeometry(0.34,0.17),M.plate,hl+0.03,def.grille==='big'?FC-fh*0.05:FC+fh*0.12,0,0,Math.PI/2,0);
@@ -774,8 +774,8 @@ function buildCar(def,st,up){
   const popLow=new P.Group(),popHigh=new P.Group();
   const hx=hl-(def.hlx||0.16),hq=sec(hx);
   for(const s of[-1,1]){
-    if(def.hl==='slim'){const z=hq.w*0.66,y=zToY(hq,z,BN,BT),y2=zToY(sec(hx-0.05),z,BN,BT),ang=Math.atan2(y-y2,0.05);
-      pod(M.gloss,hx-0.005,y-0.02,s*z,0.17,0.034,0.225,ang,s*0.38);pod(M.head,hx+0.004,y-0.012,s*z,0.13,0.03,0.18,ang,s*0.38);pod(M.chrome,hx+0.02,y-0.005,s*z*0.92,0.05,0.035,0.05,ang);pod(M.amber,hx-0.12,y,s*(z+0.06),0.05,0.015,0.05,ang)}
+    if(def.hl==='slim'){const x=hl-0.07,q=sec(x),fh2=q.t-q.b,y=q.t-fh2*0.2,z=yToZ(q,y,BN,BT)*0.74;
+      pod(M.gloss,x-0.01,y,s*z,0.06,0.07,0.24,-0.25,s*0.55);pod(M.head,x+0.005,y+0.004,s*z,0.05,0.05,0.19,-0.25,s*0.55);pod(M.chrome,x+0.012,y+0.004,s*(z-0.06),0.035,0.035,0.035,0,s*0.5);pod(M.amber,x-0.03,y-fh2*0.18,s*z*1.05,0.03,0.018,0.07,0,s*0.6)}
     else if(def.hl==='quad'){const x=hl-0.05,q=sec(x),y=clamp(def.hlY||0.62,q.b+0.08,q.t-0.04),z=yToZ(q,y,BN,BT);
       pod(M.gloss,x-0.01,y,s*z*0.72,0.05,0.085,0.2,0,s*0.35);pod(M.head,x,y,s*z*0.86,0.05,0.065,0.08,0,s*0.5);pod(M.head,x+0.02,y,s*z*0.55,0.05,0.065,0.08,0,s*0.25);pod(M.amber,x+0.01,q.b+0.08,s*z*0.8,0.03,0.025,0.06)}
     else{const x=hl-0.4,q=sec(x),z=q.w*0.6,y=zToY(q,z,BN,BT);
