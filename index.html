@@ -872,7 +872,7 @@ function buildCar(def,st,up){
   const drop=[0,0.035,0.065][st.height||0]+0.008*(up.susp||0);body.position.y=-drop;
   const glow=new P.Mesh(new P.PlaneGeometry(L+1.2,Wd+1.6),M.glow);glow.rotation.x=-Math.PI/2;glow.position.y=0.035;glow.visible=!!st.glow;glow.renderOrder=2;root.add(glow);
   const blob=new P.Mesh(new P.PlaneGeometry(L+0.7,Wd+0.6),M.blob);blob.rotation.x=-Math.PI/2;blob.position.y=0.03;blob.renderOrder=1;root.add(blob);
-  return{root,body,M,wheels,popLow,popHigh,hood:hoodGroup,hoodDir:rearBay?-1:1,hoodA:0,hoodT:0,def,st,roll:0,pitch:0,spinF:0,spinR:0};
+  return{root,body,M,wheels,popLow,popHigh,bayX:(h0+h1)/2,hood:hoodGroup,hoodDir:rearBay?-1:1,hoodA:0,hoodT:0,def,st,roll:0,pitch:0,spinF:0,spinR:0};
 }
 function disposeObj(o){if(!o)return;o.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material){const ms=Array.isArray(n.material)?n.material:[n.material];ms.forEach(m=>{if(m.map&&!SHARED_TEX.has(m.map))m.map.dispose();m.dispose()})}});if(o.parent)o.parent.remove(o)}
 function poseCar(m,x,z,a,steer,f,rearExtra,dt,brake,night){
@@ -1357,7 +1357,7 @@ function gameLogic(dt){
 /* ---------- camera ---------- */
 let camInit=true,camHd=0,orbitT=0;const camPos={x:0,y:0,z:0};
 function updateCamera(dt){
-  if(state==='garage'){const asp=W/H,k=asp<1?Math.max(1,1.5/asp):1,ho=preview?preview.hoodA:0;const ang=lerp(0.7,0.25,ho),dist=lerp(8.4,7.2,ho)*k,hh=lerp(2.3,4.4,ho);gcam.position.set(Math.cos(ang)*dist,hh,Math.sin(ang)*dist);gcam.lookAt(0,0.55,0);
+  if(state==='garage'){const asp=W/H,k=asp<1?Math.max(1,1.5/asp):1,ho=preview?preview.hoodA:0;const bxw=preview?Math.abs(preview.bayX):0,ang=0.7,dist=8.4*k;gcam.position.set(lerp(Math.cos(ang)*dist,bxw+3.2*k,ho),lerp(2.3,3.6,ho),lerp(Math.sin(ang)*dist,1.4*k,ho));gcam.lookAt(lerp(0,bxw,ho),lerp(0.55,0.45,ho),0);
     if(preview){if(ho>0.02){preview.root.rotation.y=angLerp(preview.root.rotation.y,preview.hoodDir>0?0:Math.PI,Math.min(1,dt*3))}else preview.root.rotation.y+=dt*0.35;preview.hoodA+=(preview.hoodT-preview.hoodA)*Math.min(1,dt*4);preview.hood.rotation.z=preview.hoodDir*preview.hoodA*1.05}return}
   const P=T3,mode=save.cam;
   if(state==='menu'){orbitT+=dt*0.12;const a=orbitT+car.a;const x=car.x+Math.cos(a)*7.8,z=car.y+Math.sin(a)*7.8;camera.position.set(x,2.0,z);camera.lookAt(car.x,0.8,car.y);camera.fov=40;camera.updateProjectionMatrix();followLight();camInit=true;return}
