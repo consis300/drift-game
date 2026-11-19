@@ -102,7 +102,8 @@ body.playing #controls{display:block}
 .ghead{display:flex;align-items:center;gap:10px}
 .ghead .ghost{padding:8px 14px}
 .cash{font:900 18px system-ui;color:#3cff7a;text-shadow:0 2px 0 #000}
-.ginfo{background:linear-gradient(0deg,rgba(0,0,0,.75),rgba(0,0,0,.35));padding:10px 12px;border-radius:16px;display:flex;flex-direction:column;gap:6px}
+.ginfo{background:linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,.45));padding:8px 10px;border-radius:14px;display:flex;flex-direction:column;gap:5px}
+@media (max-height:460px){.gname{font-size:15px}.bars{display:none}.gbtns button{padding:8px 6px;font-size:13px}}
 .gname{font:900 italic 18px system-ui}
 .gspec{font-size:12px;opacity:.75;margin-top:-4px}
 .bars{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
@@ -771,7 +772,7 @@ function buildCar(def,st,up){
   const hx=hl-(def.hlx||0.16),hq=sec(hx);
   for(const s of[-1,1]){
     if(def.hl==='slim'){const z=hq.w*0.66,y=zToY(hq,z,BN,BT),y2=zToY(sec(hx-0.05),z,BN,BT),ang=Math.atan2(y-y2,0.05);
-      pod(M.head,hx,y-0.01,s*z,0.16,0.045,0.19,ang,s*0.32);pod(M.chrome,hx+0.02,y-0.005,s*z*0.92,0.05,0.035,0.05,ang);pod(M.amber,hx-0.12,y,s*(z+0.06),0.05,0.015,0.05,ang)}
+      pod(M.head,hx,y-0.016,s*z,0.15,0.034,0.2,ang,s*0.38);pod(M.chrome,hx+0.02,y-0.005,s*z*0.92,0.05,0.035,0.05,ang);pod(M.amber,hx-0.12,y,s*(z+0.06),0.05,0.015,0.05,ang)}
     else if(def.hl==='quad'){const x=hl-0.05,q=sec(x),y=clamp(def.hlY||0.62,q.b+0.08,q.t-0.04),z=yToZ(q,y,BN,BT);
       pod(M.head,x,y,s*z*0.86,0.05,0.065,0.08,0,s*0.5);pod(M.head,x+0.02,y,s*z*0.55,0.05,0.065,0.08,0,s*0.25);pod(M.amber,x+0.01,q.b+0.08,s*z*0.8,0.03,0.025,0.06)}
     else{const x=hl-0.4,q=sec(x),z=q.w*0.6,y=zToY(q,z,BN,BT);
@@ -809,14 +810,15 @@ function buildCar(def,st,up){
     else if(st.spoiler===4){for(const s of[-1,1])add(rbox(0.14,0.62,0.04,0.015),M.alu,xs+0.06,yt+0.3,s*0.5);
       add(rbox(0.42,0.04,Wd+0.12,0.016),M.carbon,xs,yt+0.62,0,0,0,0.12);add(rbox(0.2,0.03,Wd+0.12,0.012),M.carbon,xs-0.2,yt+0.67,0,0,0,0.28);for(const s of[-1,1])add(rbox(0.6,0.3,0.02,0.01),M.carbon,xs-0.08,yt+0.6,s*(Wd/2+0.06))}}
   // ---- engine bay
-  {const bx0=Math.min(h0,h1),bx1=Math.max(h0,h1),bm=(bx0+bx1)/2,q=sec(bm),floorY=Math.max(q.b+0.1,lerp(q.b,q.t,0.35)),bw=q.w*1.7,len=bx1-bx0;
+  {const bx0=Math.min(h0,h1),bx1=Math.max(h0,h1),bm=(bx0+bx1)/2,q=sec(bm),bw=q.w*1.7,len=bx1-bx0;
+    let ceil=9,floorY=0;for(let i=0;i<=8;i++){const xx=lerp(bx0+0.05,bx1-0.05,i/8),qq=sec(xx);floorY=Math.max(floorY,qq.b+0.04);for(const zz of[0,0.2,0.4])ceil=Math.min(ceil,zToY(qq,qq.w*zz*2*0.82,BN,BT)-0.04)}floorY=Math.min(floorY,ceil-0.16);
     add(new P.BoxGeometry(len+0.02,0.03,bw),M.bay,bm,floorY,0);
-    const t=def.snd.type,ex=rearBay?-1:1,front=rearBay?bx0:bx1,top=sec(bm).t-0.06;
-    const eh=Math.min(0.32,top-floorY-0.04),eb=floorY+0.02;
+    const t=def.snd.type,ex=rearBay?-1:1,front=rearBay?bx0:bx1;
+    const eh=Math.max(0.1,Math.min(0.32,ceil-floorY-0.03)),eb=floorY+0.02;
     // radiator & battery & reservoir
-    add(rbox(0.06,Math.min(0.32,eh+0.06),bw*0.82,0.02),M.bay,front-ex*0.08,eb+Math.min(0.16,(eh+0.06)/2),0);
-    add(rbox(0.22,0.16,0.17,0.02),M.black,front-ex*0.32,eb+0.08,bw*0.36);add(new P.CylinderGeometry(0.018,0.018,0.03,8),M.filter,front-ex*0.28,eb+0.17,bw*0.36-0.04);
-    add(rbox(0.14,0.13,0.12,0.03),M.coolant,front-ex*0.3,eb+0.07,-bw*0.37);
+    add(rbox(0.06,eh,bw*0.8,0.02),M.bay,front-ex*0.08,eb+eh/2,0);
+    {const bh=Math.min(0.16,eh*0.7);add(rbox(0.22,bh,0.17,0.02),M.black,front-ex*0.32,eb+bh/2,bw*0.33);add(new P.CylinderGeometry(0.018,0.018,0.03,8),M.filter,front-ex*0.28,eb+bh+0.01,bw*0.33-0.04)}
+    {const ch=Math.min(0.13,eh*0.6);add(rbox(0.14,ch,0.12,0.03),M.coolant,front-ex*0.3,eb+ch/2,-bw*0.34)}
     // strut towers
     for(const s of[-1,1])add(new P.CylinderGeometry(0.075,0.09,eh,14),M.bay,bm+ex*0.08-(rearBay?0:0.0)-ex*len*0.28,eb+eh/2,s*bw*0.4);
     if((up.susp||0)>0)add(new P.CylinderGeometry(0.022,0.022,bw*0.8,10),M.blue,bm-ex*len*0.28,eb+eh+0.01,0,Math.PI/2,0,0);
@@ -1206,7 +1208,7 @@ function applyQuality(){if(!renderer)return;const dpr=window.devicePixelRatio||1
 function onResize(){W=innerWidth;H=innerHeight;renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();gcam.aspect=W/H;gcam.updateProjectionMatrix();setViewOffsets();buildMini()}
 function setViewOffsets(){
   const portrait=H>W;
-  if(state==='garage'){if(portrait)gcam.setViewOffset(W,H,0,H*0.25,W,H);else gcam.setViewOffset(W,H,W*0.24,0,W,H)}else gcam.clearViewOffset();
+  if(state==='garage'){if(portrait)gcam.setViewOffset(W,H,0,H*0.27,W,H);else gcam.setViewOffset(W,H,W*0.25,H*0.16,W,H)}else gcam.clearViewOffset();
   if(state==='menu'){if(portrait)camera.setViewOffset(W,H,0,H*0.2,W,H);else camera.setViewOffset(W,H,-W*0.22,0,W,H)}else camera.clearViewOffset();
 }
 function loadTrack(id){
